@@ -1,7 +1,7 @@
-kingston_household_travel_model
+{{cookiecutter.project_name}}
 ==============================
 
-Data Analysis and Travel Modeling of 2019 Kingston Moves travel survey
+{{cookiecutter.description}}
 
 Project Organization
 ------------
