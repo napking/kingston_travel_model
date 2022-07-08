@@ -11,9 +11,45 @@ import logging
 from pathlib import Path
 from config.definitions import *
 
+import requests
+import pandas as pd
 
 #%%
 
+def get_from_api(nrows=10, start=0):
+    
+    api_url = 'https://opendatakingston.cityofkingston.ca/api/records/1.0/search/' + \
+    '?dataset=household-travel-survey-trips'
+    params = {'rows': nrows,
+              'start': start,
+              }
+    
+    response = requests.get(api_url, params=params)
+    
+    return response.json()
+
+def get_dataframe_from_response(response_json: dict):
+    try:
+        df = pd.json_normalize(response_json['records'])
+        
+        # remove 'fields' prefix from column names
+        df.columns = df.columns.str.replace('fields.','',regex=False)
+        df.drop('datasetid', axis=1, inplace=True)
+        
+        return df
+        
+    except:
+        print('pandas could not parse the JSON')
+
+#%%
+
+def get_OD_table(data):
+    try:
+        return pd.pivot_table(data, values='recordid', aggfunc='count',
+                              index='originada', columns='destada')
+    except:
+        print('pandas could not create the OD matrix')
+        return None
 
 #%%
 
@@ -24,30 +60,7 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
 
-    while True:
-        try:
-            response = input("Do you want to create(c) all interim data?") \
-                .lower().strip()
-            if response == "c" or response == "create":
-                # Insert code or function reference to convert raw data into interim data
-                from src.util import store_interim_data, get_data_from_api
-                
-                nrows = int(input("How many records would you like to generate from source API?"))
-                data = get_data_from_api(nrows=100)
-                
-                              
-                store_interim_data(data,key=str(nrows) + 'records')
-        
-                
-                print('~~\nYou chose to create data. \n ')                    
-                break
-            elif response == "exit":
-                print('~~\nNo data was stored or retrieved')
-                break
-            else:
-                print('Invalid input. Try Again. \n -> Type "exit" to leave.')
-        except:
-            print('Invalid input. Try Again')
+
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
