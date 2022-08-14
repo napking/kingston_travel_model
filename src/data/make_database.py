@@ -15,7 +15,7 @@ from sqlite3 import Error
 
 Base = declarative_base()
 
-class trip_fact(Base):
+class TripFact(Base):
     __tablename__ = "trip_fact"
     # Creating all the table attributes
     trip_id = Column(Integer, primary_key=True)
@@ -56,7 +56,7 @@ class trip_fact(Base):
 
 #%%
 
-def create_connection(db_file):
+def lite_connection(db_file):
     """ create a database connection to a SQLite database """
     conn = None
     try:
@@ -67,10 +67,11 @@ def create_connection(db_file):
     finally:
         if conn:
             conn.close()
+            
 
 
 if __name__ == '__main__':
-    create_connection(r"C:/Users/Dave/MyPythonScripts/kingston_travel/data/processed/kingston_travel.db")
+    lite_connection(r"C:/Users/Dave/MyPythonScripts/kingston_travel/data/processed/kingston_travel.db")
     
 #%%
 
