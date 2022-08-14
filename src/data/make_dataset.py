@@ -10,6 +10,7 @@ To convert from raw data (./data/raw/) to more usable forms (./data/interim/)
 import logging
 from pathlib import Path
 from config.definitions import *
+import json
 
 import requests
 import pandas as pd
@@ -28,9 +29,19 @@ def get_from_api(nrows=10, start=0):
     
     return response.json()
 
-def get_dataframe_from_response(response_json: dict):
+def get_from_file():
+    json_path = DATA_DIR / 'raw/household-travel-survey-trips.json'
+    with open(json_path) as file:
+        return json.load(file)
+
+def get_dataframe(json):
     try:
-        df = pd.json_normalize(response_json['records'])
+        if type(json) == dict:
+            df = pd.json_normalize(json['records'])
+        elif type(json) == list:
+            df = pd.json_normalize(json)
+        else:
+            raise Exception("Unrecognized type for input json")
         '''
         the normalize function colapses all nested entries into the same 'rank'
         but adds pre-fixes for each nested entry.
@@ -78,7 +89,7 @@ def main():
     logger.info('making final data set from raw data')
     
     try:
-        data = get_dataframe_from_response(get_from_api())
+        data = get_dataframe(get_from_api())
         print(data.shape)
         return data
     except:
