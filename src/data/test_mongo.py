@@ -16,10 +16,10 @@ def main():
     client = MongoClient(uri)
     
     db = client.kingston_travel
-    collection = db.trips_fact
+    collection = db.trips_facts
     
     # querying using a cursor object
-    cursor = collection.find({"fields.mode1": "Walked (incl. jogging )"})
+    cursor = collection.find({"mode1":"Auto passenger"})
     
     result = []
     for doc in cursor:
